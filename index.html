@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Blog - 우주 속 이야기들</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0c1445 0%, #1a237e 50%, #283593 100%);
+            color: #e3f2fd;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 별 배경 효과 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 헤더 */
+        header {
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(227, 242, 253, 0.1);
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #64b5f6, #90caf9, #bbdefb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tagline {
+            font-size: 1.1rem;
+            color: #90caf9;
+            font-weight: 300;
+        }
+        
+        /* 네비게이션 */
+        nav {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: inline-flex;
+            gap: 2rem;
+            background: rgba(25, 118, 210, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(144, 202, 249, 0.2);
+        }
+        
+        nav a {
+            color: #e3f2fd;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        nav a:hover {
+            color: #64b5f6;
+            transform: translateY(-2px);
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #64b5f6, #90caf9);
+            transition: width 0.3s ease;
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        /* 메인 콘텐츠 */
+        main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+        
+        /* 블로그 포스트 */
+        .blog-posts {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .post {
+            background: rgba(25, 118, 210, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(144, 202, 249, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .post::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(45deg, #64b5f6, #90caf9, #bbdefb);
+        }
+        
+        .post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(25, 118, 210, 0.3);
+        }
+        
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #90caf9;
+        }
+        
+        .post-category {
+            background: rgba(100, 181, 246, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .post h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #e3f2fd;
+            font-weight: 600;
+        }
+        
+        .post p {
+            line-height: 1.6;
+            color: #bbdefb;
+            margin-bottom: 1.5rem;
+        }
+        
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64b5f6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more:hover {
+            color: #90caf9;
+            transform: translateX(5px);
+        }
+        
+        /* 사이드바 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .widget {
+            background: rgba(25, 118, 210, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(144, 202, 249, 0.2);
+        }
+        
+        .widget h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #e3f2fd;
+            font-weight: 600;
+        }
+        
+        .widget ul {
+            list-style: none;
+        }
+        
+        .widget li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(144, 202, 249, 0.1);
+        }
+        
+        .widget li:last-child {
+            border-bottom: none;
+        }
+        
+        .widget a {
+            color: #bbdefb;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .widget a:hover {
+            color: #64b5f6;
+        }
+        
+        /* 푸터 */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(227, 242, 253, 0.1);
+            color: #90caf9;
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .post {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* 스크롤바 스타일링 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(25, 118, 210, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #64b5f6, #90caf9);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #42a5f5, #64b5f6);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <header>
+            <h1 class="logo">COSMIC BLOG</h1>
+            <p class="tagline">우주 속에서 펼쳐지는 무한한 이야기들</p>
+        </header>
+        
+        <nav>
+            <ul>
+                <li><a href="#home">홈</a></li>
+                <li><a href="#tech">기술</a></li>
+                <li><a href="#space">우주</a></li>
+                <li><a href="#life">일상</a></li>
+                <li><a href="#about">소개</a></li>
+            </ul>
+        </nav>
+        
+        <main>
+            <section class="blog-posts">
+                <article class="post">
+                    <div class="post-meta">
+                        <span class="post-category">우주과학</span>
+                        <span>2024년 1월 15일</span>
+                        <span>5분 읽기</span>
+                    </div>
+                    <h2>블랙홀의 신비로운 세계</h2>
+                    <p>우주에서 가장 신비로운 천체 중 하나인 블랙홀. 빛조차 빠져나올 수 없는 이 거대한 중력의 감옥은 어떻게 형성되며, 우리 우주에 어떤 영향을 미치고 있을까요? 최근 연구 결과들을 통해 블랙홀의 놀라운 비밀들을 탐험해보겠습니다.</p>
+                    <a href="#" class="read-more">더 읽기 →</a>
+                </article>
+                
+                <article class="post">
+                    <div class="post-meta">
+                        <span class="post-category">기술</span>
+                        <span>2024년 1월 12일</span>
+                        <span>7분 읽기</span>
+                    </div>
+                    <h2>양자 컴퓨팅의 미래</h2>
+                    <p>양자역학의 원리를 이용한 양자 컴퓨터가 현실이 되어가고 있습니다. 기존 컴퓨터로는 수천 년이 걸릴 계산을 몇 분 만에 해결할 수 있는 이 혁신적인 기술이 우리의 미래를 어떻게 바꿀지 살펴보겠습니다.</p>
+                    <a href="#" class="read-more">더 읽기 →</a>
+                </article>
+                
+                <article class="post">
+                    <div class="post-meta">
+                        <span class="post-category">탐험</span>
+                        <span>2024년 1월 10일</span>
+                        <span>6분 읽기</span>
+                    </div>
+                    <h2>화성 탐사의 새로운 발견</h2>
+                    <p>NASA의 퍼시비어런스 로버가 화성에서 발견한 놀라운 증거들. 과거 화성에 물이 존재했다는 확실한 증거와 함께, 생명체 존재 가능성에 대한 새로운 단서들을 발견했습니다. 붉은 행성의 비밀을 함께 탐험해보세요.</p>
+                    <a href="#" class="read-more">더 읽기 →</a>
+                </article>
+                
+                <article class="post">
+                    <div class="post-meta">
+                        <span class="post-category">일상</span>
+                        <span>2024년 1월 8일</span>
+                        <span>4분 읽기</span>
+                    </div>
+                    <h2>밤하늘 관측 가이드</h2>
+                    <p>도시의 불빛 속에서도 아름다운 별들을 관측할 수 있는 방법들을 소개합니다. 간단한 장비로도 충분히 즐길 수 있는 천체 관측의 세계로 여러분을 초대합니다. 오늘 밤, 하늘을 올려다보세요.</p>
+                    <a href="#" class="read-more">더 읽기 →</a>
+                </article>
+            </section>
+            
+            <aside class="sidebar">
+                <div class="widget">
+                    <h3>인기 글</h3>
+                    <ul>
+                        <li><a href="#">우주의 나이는 정말 138억 년일까?</a></li>
+                        <li><a href="#">AI와 함께하는 우주 탐험</a></li>
+                        <li><a href="#">태양계 밖 생명체 탐사</a></li>
+                        <li><a href="#">웜홀은 정말 존재할까?</a></li>
+                    </ul>
+                </div>
+                
+                <div class="widget">
+                    <h3>카테고리</h3>
+                    <ul>
+                        <li><a href="#">우주과학 (12)</a></li>
+                        <li><a href="#">기술 (8)</a></li>
+                        <li><a href="#">탐험 (15)</a></li>
+                        <li><a href="#">일상 (6)</a></li>
+                        <li><a href="#">리뷰 (4)</a></li>
+                    </ul>
+                </div>
+                
+                <div class="widget">
+                    <h3>최근 댓글</h3>
+                    <ul>
+                        <li><a href="#">김우주님이 "블랙홀의 신비"에 댓글을 남겼습니다</a></li>
+                        <li><a href="#">별빛님이 "양자 컴퓨팅"에 댓글을 남겼습니다</a></li>
+                        <li><a href="#">코스모스님이 "화성 탐사"에 댓글을 남겼습니다</a></li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+        
+        <footer>
+            <p>&copy; 2024 Cosmic Blog. 우주의 모든 이야기를 담다.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 별 생성 함수
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numberOfStars = 100;
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // 랜덤 위치
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                // 랜덤 크기
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // 랜덤 애니메이션 지연
+                star.style.animationDelay = Math.random() * 2 + 's';
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 스크롤 효과
+        function handleScroll() {
+            const posts = document.querySelectorAll('.post');
+            const scrollTop = window.pageYOffset;
+            
+            posts.forEach((post, index) => {
+                const rect = post.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                
+                if (isVisible) {
+                    post.style.opacity = '1';
+                    post.style.transform = 'translateY(0)';
+                } else {
+                    post.style.opacity = '0.7';
+                    post.style.transform = 'translateY(20px)';
+                }
+            });
+        }
+        
+        // 부드러운 스크롤
+        function smoothScroll() {
+            const links = document.querySelectorAll('nav a[href^="#"]');
+            
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            smoothScroll();
+            
+            // 초기 스타일 설정
+            const posts = document.querySelectorAll('.post');
+            posts.forEach(post => {
+                post.style.transition = 'all 0.6s ease';
+            });
+            
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // 초기 실행
+        });
+        
+        // 마우스 이동에 따른 별 효과
+        document.addEventListener('mousemove', function(e) {
+            const stars = document.querySelectorAll('.star');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            stars.forEach((star, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                const x = mouseX * speed;
+                const y = mouseY * speed;
+                
+                star.style.transform = `translate(${x}px, ${y}px) scale(${1 + mouseX * 0.1})`;
+            });
+        });
+    </script>
+</body>
+</html>
