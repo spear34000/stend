@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stend API Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a0b10;
+            --bg-panel: rgba(20, 22, 32, 0.7);
+            --accent-blue: #4f64ff;
+            --accent-purple: #9d50bb;
+            --accent-cyan: #00d2ff;
+            --accent-green: #00ff87;
+            --text-main: #e0e0e0;
+            --text-dim: #a0a0b0;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-shadow: 0 0 15px rgba(79, 100, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(79, 100, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(157, 80, 187, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 17, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            z-index: 100;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--glass-border) transparent;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .portal-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 8px;
+            box-shadow: var(--neon-shadow);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--text-dim));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-category {
+            margin-bottom: 24px;
+        }
+
+        .category-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        .nav-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: rgba(79, 100, 255, 0.1);
+            border-color: rgba(79, 100, 255, 0.2);
+            box-shadow: inset 0 0 10px rgba(79, 100, 255, 0.05);
+        }
+
+        .method-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .method-get { background: rgba(0, 210, 255, 0.1); color: var(--accent-cyan); }
+        .method-post { background: rgba(0, 255, 135, 0.1); color: var(--accent-green); }
+
+        /* --- Main Content --- */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .endpoint-header {
+            margin-bottom: 32px;
+        }
+
+        .endpoint-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .endpoint-path {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Fira Code', monospace;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 16px;
+            border-radius: 8px;
+            width: fit-content;
+            border: 1px solid var(--glass-border);
+        }
+
+        .endpoint-description {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-top: 16px;
+            max-width: 800px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Parameter Table --- */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .param-table th, .param-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .param-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .param-name { font-family: 'Fira Code', monospace; color: var(--accent-cyan); }
+        .param-type { font-size: 12px; color: var(--accent-purple); }
+
+        /* --- Code Snippets --- */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .code-container {
+            background: #0d0e14;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* --- Right Panel (Response) --- */
+        .response-panel {
+            width: 400px;
+            background: rgba(10, 11, 16, 0.5);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .try-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--neon-shadow);
+            transition: transform 0.2s;
+        }
+
+        .try-btn:hover { transform: translateY(-2px); }
+
+        .response-box {
+            flex: 1;
+            background: #000;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--accent-green);
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(0, 255, 135, 0.1);
+            color: var(--accent-green);
+        }
+
+        /* --- Status Bar --- */
+        .portal-footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 280px;
+            height: 32px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 12px;
+            color: var(--text-dim);
+            gap: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            display: inline-block;
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="portal-icon"></div>
+            <div class="logo-text">STEND API</div>
+        </div>
+
+        <div class="nav-category">
+            <div class="category-title">System</div>
+            <div class="nav-item active" onclick="showEndpoint('status')">
+                <span class="method-badge method-get">GET</span> Status
+            </div>
+            <div class="nav-item" onclick="showEndpoint('shell')">
+                <span class="method-badge method-post">POST</span> ADB Shell
+            </div>
+            <div class="nav-item" onclick="showEndpoint('store_get')">
+                <span class="method-badge method-get">GET</span> Store Get
+            </div>
+            <div class="nav-item" onclick="showEndpoint('store_put')">
+                <span class="method-badge method-post">POST</span> Store Put
+            </div>
+            <div class="nav-item" onclick="showEndpoint('store_keys')"><span class="method-badge method-get">GET</span> Store Keys</div>
+        </div>
+
+        <div class="nav-category">
+            <div class="category-title">Power Actions</div>
+            <div class="nav-item" onclick="showEndpoint('send_direct')"><span class="method-badge method-post">POST</span> Fast Send</div>
+            <div class="nav-item" onclick="showEndpoint('read_direct')"><span class="method-badge method-post">POST</span> Genuine Read</div>
+            <div class="nav-item" onclick="showEndpoint('auth_info')"><span class="method-badge method-get">GET</span> Auth Info</div>
+        </div>
+
+        <div class="nav-category">
+            <div class="category-title">Ecosystem</div>
+            <div class="nav-item" onclick="showEndpoint('webhook_sub')"><span class="method-badge method-post">POST</span> Webhook Sub</div>
+            <div class="nav-item" onclick="showEndpoint('shared_set')"><span class="method-badge method-post">POST</span> Shared Set</div>
+            <div class="nav-item" onclick="showEndpoint('shared_all')"><span class="method-badge method-get">GET</span> Shared All</div>
+        </div>
+
+        <div class="nav-category">
+            <div class="category-title">Rooms & Data</div>
+            <div class="nav-item" onclick="showEndpoint('rooms')">
+                <span class="method-badge method-get">GET</span> Room List
+            </div>
+            <div class="nav-item" onclick="showEndpoint('history')">
+                <span class="method-badge method-get">GET</span> History
+            </div>
+            <div class="nav-item" onclick="showEndpoint('openchat_link')">
+                <span class="method-badge method-get">GET</span> OpenChat Link
+            </div>
+            <div class="nav-item" onclick="showEndpoint('search')">
+                <span class="method-badge method-get">GET</span> Search
+            </div>
+            <div class="nav-item" onclick="showEndpoint('media')">
+                <span class="method-badge method-get">GET</span> Media Info
+            </div>
+            <div class="nav-item" onclick="showEndpoint('stats')">
+                <span class="method-badge method-get">GET</span> Participation
+            </div>
+            <div class="nav-item" onclick="showEndpoint('tables')">
+                <span class="method-badge method-get">GET</span> DB Tables
+            </div>
+            <div class="nav-item" onclick="showEndpoint('columns')">
+                <span class="method-badge method-get">GET</span> DB Columns
+            </div>
+            <div class="nav-item" onclick="showEndpoint('read')">
+                <span class="method-badge method-post">POST</span> Mark Read
+            </div>
+        </div>
+
+        <div class="nav-category">
+            <div class="category-title">Advanced</div>
+            <div class="nav-item" onclick="showEndpoint('query')">
+                <span class="method-badge method-post">POST</span> SQL Query
+            </div>
+            <div class="nav-item" onclick="showEndpoint('db_clean')">
+                <span class="method-badge method-post">POST</span> DB Cleanup
+            </div>
+            <div class="nav-item" onclick="showEndpoint('link_v2')">
+                <span class="method-badge method-post">POST</span> KakaoLink v2
+            </div>
+            <div class="nav-item" onclick="showEndpoint('aot')">
+                <span class="method-badge method-get">GET</span> AOT Token
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="content-area" id="content-body">
+            <!-- Dynamic Content Load -->
+        </div>
+
+        <div class="response-panel">
+            <div class="response-header">
+                <h3>Response</h3>
+                <span class="status-badge" id="res-status">200 OK</span>
+            </div>
+            <div class="response-box" id="response-viewer">
+                {
+                    "message": "Click 'Try Experiment' to see result..."
+                }
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="try-btn" id="run-btn" onclick="executeEndpoint()">Try Experiment</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="portal-footer">
+        <div><span class="status-dot"></span> System Live</div>
+        <div id="footer-logs" style="opacity: 0.7; overflow: hidden; white-space: nowrap;">Waiting for logs...</div>
+    </div>
+
+    <script>
+        const API_DATA = {
+            status: {
+                title: "System Status",
+                path: "/api/status",
+                method: "GET",
+                desc: "Stend 플랫폼의 전체 코어 상태를 조회합니다. 안드로이드 서브시스템 연결 여부와 로드된 스킬 수를 확인할 수 있습니다.",
+                params: [],
+                examples: {
+                    python: "import requests\nres = requests.get('http://localhost:5001/api/status')\nprint(res.json())",
+                    js: "fetch('/api/status')\n  .then(res => res.json())\n  .then(console.log);"
+                }
+            },
+            rooms: {
+                title: "Room List",
+                path: "/api/stend/rooms",
+                method: "GET",
+                desc: "현재 카카오톡에 생성된 모든 대화방 목록과 메타데이터(참여 인원, 최근 대화 ID 등)를 조회합니다.",
+                params: [],
+                examples: {
+                    python: "res = requests.get('http://localhost:5001/api/stend/rooms')\nfor room in res.json():\n    print(room['name'])",
+                    js: "const rooms = await (await fetch('/api/stend/rooms')).json();"
+                }
+            },
+            history: {
+                title: "Chat History",
+                path: "/api/stend/rooms/{id}/history",
+                method: "GET",
+                desc: "특정 대화방의 최근 대화 내역을 조회합니다. 모든 대화는 실시간으로 복호화되어 제공됩니다.",
+                params: [
+                    { name: "id", type: "Path", desc: "Room / Chat ID" },
+                    { name: "limit", type: "Query", desc: "Number of logs (default: 100)" }
+                ],
+                examples: {
+                    python: "res = requests.get('http://localhost:5001/api/stend/rooms/12345/history?limit=50')\nprint(res.json())",
+                    js: "fetch('/api/stend/rooms/12345/history?limit=20')"
+                }
+            },
+            search: {
+                title: "Message Search",
+                path: "/api/stend/rooms/{id}/search",
+                method: "GET",
+                desc: "해당 대화방 내에서 특정 키워드를 포함한 대화를 검색합니다. 복호화된 대화 내용을 기반으로 필터링합니다.",
+                params: [
+                    { name: "id", type: "Path", desc: "Room ID" },
+                    { name: "q", type: "Query", desc: "Search keyword" },
+                    { name: "limit", type: "Query", desc: "Result limit (default: 100)" }
+                ],
+                examples: {
+                    python: "res = requests.get('http://localhost:5001/api/stend/rooms/12345/search?q=안녕&limit=10')\nprint(res.json())",
+                    js: "fetch('/api/stend/rooms/12345/search?q=안녕')"
+                }
+            },
+            media: {
+                title: "Media Analysis",
+                path: "/api/stend/chats/{id}/media_info",
+                method: "GET",
+                desc: "특정 메시지의 미디어(사진, 동영상, 지도 등) 상세 정보를 분석합니다. 썸네일 경로, 원본 사이즈, 좌표 데이터 등을 추출합니다.",
+                params: [
+                    { name: "id", type: "Path", desc: "Message (Log) ID" }
+                ],
+                examples: {
+                    python: "res = requests.get('http://localhost:5001/api/stend/chats/98765/media_info')\nprint(res.json()['details'])",
+                    js: "fetch('/api/stend/chats/98765/media_info')"
+                }
+            },
+            stats: {
+                title: "Participation Stats",
+                path: "/api/stend/rooms/{id}/stats",
+                method: "GET",
+                desc: "해당 대화방의 유저별 발화량 순위를 분석합니다. 누가 가장 활발하게 대화하는지 실시간 통계를 제공합니다.",
+                params: [
+                    { name: "id", type: "Path", desc: "Room ID" }
+                ],
+                examples: {
+                    python: "res = requests.get('http://localhost:5001/api/stend/rooms/12345/stats')\nstats = res.json()\nprint(f\"King: {stats[0]['name']}\")",
+                    js: "fetch('/api/stend/rooms/12345/stats')"
+                }
+            },
+            tables: {
+                title: "DB Tables",
+                path: "/api/stend/db/tables",
+                method: "GET",
+                desc: "카카오톡 관련 전체 테이블 목록을 조회합니다.",
+                params: [],
+                examples: {
+                    python: "requests.get('http://localhost:5001/api/stend/db/tables').json()",
+                    js: "fetch('/api/stend/db/tables')"
+                }
+            },
+            columns: {
+                title: "DB Columns",
+                path: "/api/stend/db/columns",
+                method: "GET",
+                desc: "특정 테이블의 컬럼 정보를 조회합니다.",
+                params: [
+                    { name: "table", type: "Query", desc: "Table name" }
+                ],
+                examples: {
+                    python: "requests.get('http://localhost:5001/api/stend/db/columns?table=friends').json()",
+                    js: "fetch('/api/stend/db/columns?table=friends')"
+                }
+            },
+            openchat_link: {
+                title: "OpenChat URL",
+                path: "/api/stend/rooms/{id}/link",
+                method: "GET",
+                desc: "해당 오픈채팅방의 참여 주소(https://open.kakao.com/o/...)를 추출합니다.",
+                params: [
+                    { name: "id", type: "Path", desc: "Room ID" }
+                ],
+                examples: {
+                    python: "requests.get('http://localhost:5001/api/stend/rooms/1/link').json()",
+                    js: "fetch('/api/stend/rooms/1/link')"
+                }
+            },
+            query: {
+                title: "SQL Direct Query",
+                path: "/api/stend/query",
+                method: "POST",
+                desc: "안드로이드 내부 SQLite 데이터베이스에 직접 SQL 쿼리를 실행합니다. 복잡한 데이터 분석이나 특정 데이터 추출에 용이합니다.",
+                params: [
+                    { name: "query", type: "Body", desc: "SELECT sql statement" },
+                    { name: "bind", type: "Body", desc: "Binding values array" }
+                ],
+                examples: {
+                    python: "payload = {'query': 'SELECT * FROM friends WHERE name = ?', 'bind': [{'content': 'John'}]}\nres = requests.post('http://localhost:5001/api/stend/query', json=payload)",
+                    js: "fetch('/api/stend/query', {\n  method: 'POST',\n  body: JSON.stringify({query: '...'})\n})"
+                }
+            },
+            db_clean: {
+                title: "DB Cleanup",
+                path: "/api/stend/db/clean",
+                method: "POST",
+                desc: "오래된 채팅 로그를 정리하여 데이터베이스 용량을 확보합니다.",
+                params: [
+                    { name: "days", type: "Query", desc: "Delete logs older than X days (default: 30)" }
+                ],
+                examples: {
+                    python: "requests.post('http://localhost:5001/api/stend/db/clean?days=7')",
+                    js: "fetch('/api/stend/db/clean?days=7', {method: 'POST'})"
+                }
+            },
+            link_v2: {
+                title: "KakaoLink v2 Sender",
+                path: "/api/stend/link/send",
+                method: "POST",
+                desc: "템플릿 기반의 카카오링크 v2를 전송합니다. sharer.kakao.com의 로직을 에뮬레이트하여 외부 링크 차단 없이 메시지를 보냅니다.",
+                params: [
+                    { name: "receiver", type: "Body", desc: "Receiver name (exact or partial)" },
+                    { name: "template_id", type: "Body", desc: "Kakao template ID" },
+                    { name: "template_args", type: "Body", desc: "JSON parameters for template" },
+                    { name: "app_key", type: "Body", desc: "Kakao JavaScript App Key" },
+                    { name: "origin", type: "Body", desc: "Registered site domain" }
+                ],
+                examples: {
+                    python: "payload = {\n  'receiver': '홍길동',\n  'template_id': 12345,\n  'template_args': {'KEY': 'VALUE'},\n  'app_key': 'YOUR_KEY',\n  'origin': 'https://example.com'\n}\nrequests.post('http://localhost:5001/api/stend/link/send', json=payload)",
+                    js: "fetch('/api/stend/link/send', { method: 'POST', body: JSON.stringify(...) })"
+                }
+            },
+            shell: {
+                title: "Terminal ADB Shell",
+                path: "/api/action/shell",
+                method: "POST",
+                desc: "ADB를 통해 안드로이드 터미널 명령어를 직접 실행합니다.",
+                params: [
+                    { name: "command", type: "Body", desc: "Shell command to execute" }
+                ],
+                examples: {
+                    python: "requests.post('http://localhost:5001/api/action/shell', json={'command': 'ls /sdcard'})",
+                    js: "fetch('/api/action/shell', { method: 'POST', body: JSON.stringify({command: 'ls'}) })"
+                }
+            },
+            store_get: {
+                title: "Store Get",
+                path: "/api/store/get",
+                method: "GET",
+                desc: "키-값 저장소(PyKV 호환)에서 데이터를 조회합니다.",
+                params: [
+                    { name: "key", type: "Query", desc: "Storage key" }
+                ],
+                examples: {
+                    python: "requests.get('http://localhost:5001/api/store/get?key=bot_name')",
+                    js: "fetch('/api/store/get?key=config')"
+                }
+            },
+            store_put: {
+                title: "Store Put",
+                path: "/api/store/put",
+                method: "POST",
+                desc: "키-값 저장소에 데이터를 저장합니다.",
+                params: [
+                    { name: "key", type: "Body", desc: "Storage key" },
+                    { name: "value", type: "Body", desc: "Data to store (String or JSON)" }
+                ],
+                examples: {
+                    python: "requests.post('http://localhost:5001/api/store/put', json={'key': 'ver', 'value': '1.0'})",
+                    js: "fetch('/api/store/put', {method: 'POST', body: JSON.stringify({key: 'a', value: 'b'})})"
+                }
+            },
+            aot: {
+                title: "AOT Token",
+                path: "/api/stend/aot",
+                method: "GET",
+                desc: "카카오링크 전송에 필수적인 Authorization Token(AOT)을 추출합니다. 자동 로그인 및 세션 유지에 활용됩니다.",
+                params: [],
+                examples: {
+                    python: "token = requests.get('http://localhost:5001/api/stend/aot').json()['aot']",
+                    js: "const aot = await fetch('/api/stend/aot')"
+                }
+            },
+            read: {
+                title: "Mark as Read",
+                path: "/api/stend/rooms/{id}/read",
+                method: "POST",
+                desc: "해당 대화방의 읽지 않은 모든 메시지를 '읽음' 상태로 변경합니다.",
+                params: [
+                    { name: "id", type: "Path", desc: "Room ID" }
+                ],
+                examples: {
+                    python: "requests.post('http://localhost:5001/api/stend/rooms/12345/read')",
+                    js: "fetch('/api/stend/rooms/12345/read', {method: 'POST'})"
+                }
+            }
+        };
+
+        let currentId = 'status';
+
+        function renderEndpoint(id) {
+            const data = API_DATA[id];
+            let paramsHtml = '';
+            if (data.params.length > 0) {
+                paramsHtml = `
+                    <div class="section-title">Parameters</div>
+                    <table class="param-table">
+                        <thead>
+                            <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            ${data.params.map(p => `<tr>
+                                <td class="param-name">${p.name}</td>
+                                <td class="param-type">${p.type}</td>
+                                <td>${p.desc}</td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            return `
+                <div class="endpoint-header">
+                    <div class="endpoint-title">${data.title}</div>
+                    <div class="endpoint-path">
+                        <span class="method-badge method-${data.method.toLowerCase()}">${data.method}</span>
+                        <span>${data.path}</span>
+                    </div>
+                    <div class="endpoint-description">${data.desc}</div>
+                </div>
+
+                ${paramsHtml}
+
+                <div class="section-title">Example Code</div>
+                <div class="tabs">
+                    <button class="tab-btn active" id="btn-python" onclick="setLang('python')">Python</button>
+                    <button class="tab-btn" id="btn-js" onclick="setLang('js')">JavaScript</button>
+                </div>
+                <div class="code-container" id="code-snippet">
+                    <button class="copy-btn">Copy</button>
+                    <pre>${data.examples.python}</pre>
+                </div>
+            `;
+        }
+
+        function showEndpoint(id) {
+            currentId = id;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('content-body').innerHTML = renderEndpoint(id);
+            document.getElementById('response-viewer').textContent = '{\n    "message": "Ready to test "\n}';
+        }
+
+        function setLang(lang) {
+            const data = API_DATA[currentId];
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+            document.getElementById('code-snippet').querySelector('pre').textContent = data.examples[lang];
+        }
+
+        async function executeEndpoint() {
+            const data = API_DATA[currentId];
+            const viewer = document.getElementById('response-viewer');
+            const status = document.getElementById('res-status');
+            
+            viewer.textContent = 'Executing...';
+            viewer.style.color = '#fff';
+
+            try {
+                // Determine real path for common testing
+                let testPath = data.path.replace('{id}', '1'); // mock id for documentation test
+                if(currentId === 'rooms' || currentId === 'status' || currentId === 'friends' || currentId === 'aot' || currentId === 'link_v2' || currentId === 'tables' || currentId === 'store_get') testPath = data.path;
+
+                const response = await fetch(testPath, {
+                    method: data.method,
+                    headers: data.method === 'POST' ? { 'Content-Type': 'application/json' } : {}
+                });
+                
+                const result = await response.json();
+                viewer.textContent = JSON.stringify(result, null, 4);
+                viewer.style.color = 'var(--accent-green)';
+                status.textContent = `${response.status} ${response.statusText}`;
+                status.style.background = 'rgba(0, 255, 135, 0.1)';
+                status.style.color = 'var(--accent-green)';
+            } catch (err) {
+                viewer.textContent = `Error: ${err.message}`;
+                viewer.style.color = '#ff4f4f';
+                status.textContent = 'ERR';
+                status.style.background = 'rgba(255, 79, 79, 0.1)';
+                status.style.color = '#ff4f4f';
+            }
+        }
+
+        // WebSocket for Logs
+        const protocols = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocols}//${window.location.host}/ws/logs`);
+        const logDisplay = document.getElementById('footer-logs');
+
+        ws.onmessage = (event) => {
+            logDisplay.textContent = `> ${event.data}`;
+            logDisplay.style.color = '#fff';
+            setTimeout(() => { logDisplay.style.color = 'var(--text-dim)'; }, 500);
+        };
+
+        // Initial Load
+        document.getElementById('content-body').innerHTML = renderEndpoint('status');
+    </script>
+</body>
+</html>
