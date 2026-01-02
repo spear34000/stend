@@ -61,7 +61,7 @@ def start_api():
     try:
         subprocess.Popen([sys.executable, API_SERVER_SCRIPT])
         print("[SUCCESS] API Server Started at http://localhost:5001")
-        print("Tip: Use 'python stend.py stop' to shut down everything.")
+        print("Tip: Use 'python stend_cli.py stop' to shut down everything.")
     except Exception as e:
         print(f"[ERROR] Failed to start API: {e}")
 
